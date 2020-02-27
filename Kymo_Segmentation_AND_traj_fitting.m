@@ -271,7 +271,9 @@ cd(file_name_2_location)
 load('file_name_2')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 total_time = tic;
-for which2 = 1:length(file_name_2)
+% for which2 = 1:length(file_name_2)
+for which2 = 100
+
     %this can get commented out if you remembered to clear the workspace
     %before running the first section
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -320,21 +322,35 @@ for which2 = 1:length(file_name_2)
     cd(output_dir2);
 % % % %     filename = (file_name_2{which2});
 % % % %     save(filename);
-guassfitting(i).lineintensities = [xData, yData];
+gaussfitting(i).lineintensities = [xData, yData];
 gaussfitting(i).gaussfit = fitresult;
     end
 disp(['you are on trace ', num2str(which2), ' out of ', num2str(length(file_name_2))])
 end
 total_time_save = toc(total_time)
 
-%% Experiments
+%% Experiments making a video of gauss fits
+arrayme ={};
 for i = 1:length(gaussfitting)
-    figure(i)
-    plot(guassfit(i).lineintensities(:,1), guassfit(i).lineintensities(:,2))
+    plot(gaussfitting(i).lineintensities(:,1), gaussfitting(i).lineintensities(:,2))
     hold on
-    plot(gaussfitting(i).gaussfit, guassfit(i).lineintensities(:,1), guassfit(i).lineintensities(:,2))
+    plot(gaussfitting(i).gaussfit, gaussfitting(i).lineintensities(:,1), gaussfitting(i).lineintensities(:,2))
+    xlabel('pixels')
+    ylabel('intensity (counts)')
+    F = getframe;
+    arrayme{i} = F.cdata;
+    hold off
+    disp(num2str(i))
 end
-hold off
+
+%% Experiments part 2 making a video of gauss fits
+videofile = VideoWriter('gaussmovie.avi')
+open(videofile)
+for i = 1:length(arrayme)
+   writeVideo(videofile, imcomplement(arrayme{i}))
+end
+close(videofile)
+
 %% file name 2 merged with filename
 clc
 clear

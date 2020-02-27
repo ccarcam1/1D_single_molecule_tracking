@@ -1,47 +1,65 @@
 %% plot both kymo and cropped area for presentations use mydata + kymos
-for i = 1:10
-close all
+for i = [70:100]
+    %reset before the next figure comes up
+    close all
     figure;
-%     set(gcf,'Position',[650,50,700,1100]); %for work computer
-    set(gcf,'Position',[375,25,500,600]);% for laptop
-    imagesc(mydata(i).full_kymo([1:700],:),[0,max(mydata(i).crop, [], 'all')/2]);
+    %Change pop-up figure window size to fit screen
+    set(gcf,'Position',[375,185,600,800]);% for laptop
+    %Display the original kymograph in grayscale
+    imagesc(mydata(i).full_kymo,[0,max(mydata(i).crop, [], 'all')/2]);
     colormap(gray);
     hold on
-    ksize = size(mydata(i).full_kymo);
-    kw=ksize(:,2);
-    kh=ksize(:,1);
+% potentially unneeded
+%     ksize = size(mydata(i).full_kymo);
+%     kw=ksize(:,2);
+%     kh=ksize(:,1);
+    clear crop_coordinates
     crop_coordinates = mydata(i).crop_coords;
+    % box off the segmented area on the full kymograph
     rectangle('Position',[crop_coordinates(3),crop_coordinates(1),...
         crop_coordinates(4)-crop_coordinates(3),crop_coordinates(2)-...
         crop_coordinates(1)], 'EdgeColor','y'); 
-xticklabels = 0:1:(size(mydata(i).full_kymo,2)*0.1);
-xticks = linspace(1, size(mydata(i).full_kymo, 2), numel(xticklabels));
-set(gca, 'XTick', xticks, 'XTickLabel', xticklabels)
-zz = (size(mydata(i).full_kymo,1)*mydata(i).timestep)/1000;
-yy = round(zz/10);
-yticklabels = zz:yy:0;
-yticks = linspace(1, size(mydata(i).full_kymo,1), numel(yticklabels));
-set(gca, 'YTick', yticks, 'YTickLabel', flipud(yticklabels(:)))
-
+    title([mydata(i).mol_id, newline])
+    %x axis dimensions
+    xticklabels = [(0:1:(size(mydata(i).full_kymo,2)*0.1))];
+    xticks = linspace(1, size(mydata(i).full_kymo, 2), numel(xticklabels));
+    set(gca, 'XTick', xticks, 'XColor','w', 'XTickLabel', xticklabels,'FontSize',16)
+    %y axis dimensions
+    zz = (size(mydata(i).full_kymo,1)*mydata(i).timestep)/1000;
+    yy = round(zz/10);
+    yticklabels = ([0:yy:zz]);
+    yticks = linspace(1, size(mydata(i).full_kymo,1), numel(yticklabels));
+    set(gca, 'YTick', yticks, 'YColor','w', 'YTickLabel', yticklabels,'YDir','reverse','FontSize',16)
+    ylabel('time (s)')
+    xlabel('distance (\mum)')
     hold off
-   
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% 
     figure;
     crop = mydata(i).crop;
-%     set(gcf,'Position',[1350,50,700,1100]); % for work computer
-    set(gcf,'Position',[825,25,450,600]); % for laptop
-    s1=subplot(1,3,1);imagesc(crop,[0,max(crop, [], 'all')/2]),colormap(gray);
+    %Change pop-up figure window size to fit screen
+    set(gcf,'Position',[1025,185,200,800]); % for laptop
+    imagesc(crop,[0,max(crop, [], 'all')/2]),colormap(gray);
     hold on
-    plot(mydata(i).coords,mydata(i).frames,'-y', 'LineWidth', 1.5);
-    xticklabels = 0:0.5:(size(crop,2)*0.1);
+    plot(mydata(i).coords,mydata(i).frames,'-y', 'LineWidth', 2.2);
+    %x axis dimensions    
+    xticklabels = [(0:0.5:(size(crop,2)*0.1))];
     xticks = linspace(1, size(crop, 2), numel(xticklabels));
-    set(gca, 'XTick', xticks, 'XTickLabel', xticklabels)
+    set(gca, 'XTick', xticks,'XColor','w', 'XTickLabel', xticklabels, 'FontSize',16)
+    %y axis dimensions
+    zz = (size(crop,1)*mydata(i).timestep)/1000;
+    yy = round(zz/10);
+    yticklabels = ([0:yy:zz]);
+    yticks = linspace(1, size(crop,1), numel(yticklabels));
+    set(gca, 'YTick', yticks,'YColor','w', 'YTickLabel', yticklabels,'YDir','reverse','FontSize',16)
+    ylabel('time (s)')
+    xlabel('distance (\mum)')
     hold off
-
- choice = menu('Choose an action','next','Break');
- if choice == 2
-     break 
- end
+    % interactive element for switching to the next kymograph segment
+    choice = menu('Choose an action','next','Break');
+    if choice == 2
+        break 
+    end
 end
 
 
