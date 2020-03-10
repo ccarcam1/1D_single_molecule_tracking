@@ -1,14 +1,13 @@
 %% save the directory information here for the rest
-path_start = 'D:\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\Projects\SWR1 Project\2020-03-04-Cy5dCas9Cy3SWR1\';
+
+path_start = 'D:\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\Projects\SWR1 Project\salt concentrations ATP\2019-11-25 25 mM KCl\';
 cd(path_start);
-mkdir container;
+% mkdir container;
 cd('container');
 save('path_start', 'path_start');
 % change here
-kymo_mat_green = [path_start,'kymo_mat_green\'];
-save('kymo_mat_green', 'kymo_mat_green');
-kymo_mat_red = [path_start,'kymo_mat_red\'];
-save('kymo_mat_red', 'kymo_mat_red');
+kymo_matstruct = [path_start,'kymo_mat\'];
+save('kymo_matstruct', 'kymo_matstruct');
 % change here
 linetime_matstruct = [path_start,'linescan_time_mat\'];
 save('linetime_matstruct', 'linetime_matstruct');
@@ -18,118 +17,87 @@ MSD_path = [path_start,'MSD analysis\'];
 save('MSD_path', 'MSD_path');
 RESULTS = [path_start,'final\'];
 save('RESULTS', 'RESULTS');
-container_path = [path_start,'container\'];
-save('container_path', 'container_path');
-%% Extract and save kymograph information
-cd(container_path)
+
+
+
+
+
+%% segment the traces, defining the start of the trace and background
+% first: click once top left of the trace of interest, click once bottom
+% right of the trace of interest.
+% Double click on a region that represents background intensity
+% Double click at the start of the trace on a pixel that represents trace
+% max intensity 
+% The workspace for each trace will be saved, indicating which trace it is
+%file names
 clc
 clear
-kymoname = {}; % initialize
-kymofilename = {};
+%matlab kymograph structures
+load('path_start.mat')
+load('kymo_matstruct.mat');
+load('linetime_matstruct.mat');
+load('segmentation_dir.mat');
+% path_start = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\SWR1\2019-11-20 200 mM KCl\';
+% kymo_matstruct = [path_start,'kymo_mat\'];
+% linetime_matstruct = [path_start,'linescan_time_mat\'];
+% segmentation_dir = [path_start,'segmentation\'];
+
+input_dir = kymo_matstruct;
+cd(kymo_matstruct)
+A = dir(kymo_matstruct);
+cd(linetime_matstruct)
+B = dir;
+bname = {};
+for i = 1:length(B)
+bname{i} = B(i).name;
+end
 file_names = {};
-mat = dir('*.mat'); % matlab structures paths
-for q = 1:length(mat)
-    load(mat(q).name);
-end
-clear mat 
-clear q
-redkymo = dir(kymo_mat_red);
-greenkymo = dir(kymo_mat_green);
-linetime = dir(linetime_matstruct);
-pattern = [".", ".."];
-counter = 1;
-for i = 1:length(linetime) % Get name of kymos
-    if not(startsWith(linetime(i).name, pattern))
-    str = linetime(i).name;
-    match = [".mat"];
-    name = erase(str,match);
-%     name = strip(name,'left','_');
-    name = name(1:(end-14));
-    kymoname{counter,1} = name;
-    counter = counter +1;
-    end
-end
-cd(kymo_mat_green)
-pattern = [".", ".."];
-counter = 1;
-for i = 1:length(greenkymo) %Get file names of green kymos
-    if not(startsWith(greenkymo(i).name, pattern))
-    name = greenkymo(i).name;
-    kymofilename_green{counter,1} = name;
-    counter = counter +1;
-    end
-end
-for i = 1: length(kymoname) % Get kymo object array
-    file_to_open = find(contains(kymofilename_green,kymoname{i}));
-    load (kymofilename_green{file_to_open})
-    kymoname{i,2} = double(obj_arr);
-end
-cd(kymo_mat_red)
-pattern = [".", ".."];
-counter = 1;
-for i = 1:length(redkymo) %Get file names of red kymos
-    if not(startsWith(redkymo(i).name, pattern))
-    name = redkymo(i).name;
-    kymofilename_red{counter,1} = name;
-    counter = counter +1;
-    end
-end
-for i = 1: length(kymoname) % Get kymo object array
-    file_to_open = find(contains(kymofilename_red,kymoname{i}));
-    load (kymofilename_red{file_to_open})
-    kymoname{i,3} = double(obj_arr);
+cd(kymo_matstruct)
+for i = 3: size(dir,1)
+    file_names{1,i-2} = erase(A(i).name,'.mat');
 end
 cd(linetime_matstruct)
-pattern = [".", ".."];
-counter = 1;
-for i = 1:length(linetime) %Get file names of linetimes
-    if not(startsWith(linetime(i).name, pattern))
-    name = linetime(i).name;
-    linetime_filename{counter,1} = name;
-    counter = counter +1;
-    end
+for i = 3: size(dir,1)
+    TF = find(contains(bname,[file_names{1,i-2},'_']));
+    load (bname{TF})
+    file_names{2,i-2} = linescan_time_;
 end
-for i = 1: length(kymoname) % Get linetimes
-    file_to_open = find(contains(linetime_filename,kymoname{i}));
-    load (linetime_filename{file_to_open})
-    kymoname{i,4} = double(linescan_time_);
-end
-
-for i = 1:length(kymoname) % Save into a structured array
-    data(i).name = kymoname{i,1};
-    data(i).green_kymo = kymoname{i,2};
-    data(i).red_kymo = kymoname{i,3};
-    data(i).line_time = kymoname{i,4};
-end
-cd(container_path)
-save('data.mat', 'data');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  segment the traces, defining the start of the trace and background
-...first: click once top left of the trace of interest, click once bottom
-...right of the trace of interest.
-...Double click on a region that represents background intensity
-...Double click at the start of the trace on a pixel that represents trace
-...max intensity 
-...The workspace for each trace will be saved, indicating which trace it is
-...file names
-cd(container_path)
-clc
-clear
-mat = dir('*.mat'); % matlab structures paths
-for q = 1:length(mat)
-    load(mat(q).name);
-end
 
-for which = 1:length(data)
-    kymograph = data(which).red_kymo;
-    kymograph = rot90(kymograph, 3);
-    imagesc(kymograph, [0,max(kymograph, [], 'all')/4]); % this is artificially bright to let you could the number of traces you want to process
-    set(gcf,'Position',[25,25,600,800]); %laptop % set(gcf,'Position',[1150,50,700,1100]); %work computer
-    ksize = size(kymograph);
-    kw=ksize(:,2);
-    kh=ksize(:,1);
-    prompt = 'How many traces to extract?';
-    num_of_traces = input(prompt);
+A = dir(kymo_matstruct);
+% file_name = {};
+for i = 3: size(dir,1)
+    file_names{1,i-2} = erase(A(i).name,[".mat", "_16_bit"]);
+    file_names{3,i-2} = erase(A(i).name,'.mat');
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+for which = 1:length(file_names)
+kymo_matstruct = input_dir;
+cd(kymo_matstruct)
+
+dim = 0.1; %um
+    pix = 1;%This is 1 for one color kymos
+% for i = 1:length(file_name)
+file = file_names{3,which};
+timestep = file_names{2,which}; %seconds
+
+
+loadpath=strcat(kymo_matstruct,file,'.mat');
+kymograph=load(loadpath);
+kymograph = kymograph.obj_arr;
+kymograph = rot90(kymograph, 3);
+kymograph = double(kymograph);
+
+imagesc(kymograph, [0,max(kymograph, [], 'all')/4]); % this is artificially bright to let you could the number of traces you want to process
+% set(gcf,'Position',[1150,50,700,1100]); %work computer
+set(gcf,'Position',[25,25,600,800]); %laptop
+ksize = size(kymograph);
+kw=ksize(:,2);
+kh=ksize(:,1);
+prompt = 'How many traces to extract?';
+num_of_traces = input(prompt);
+
     for j = 1:num_of_traces
         % select the region containing the trace of your particle of choice by
         % making two clicks: top left and bottom right corners of the future region
@@ -159,12 +127,14 @@ for which = 1:length(data)
         crop_coordinates = [sp(2),sp(4),sp(1),sp(3)];
         figure;
           if max(kymograph,[], 'all') > 30
-            imagesc(crop,[0,max(crop, [], 'all')/2])  
-            set(gcf,'Position',[25,25,600,800]); %laptop % set(gcf,'Position',[1150,50,700,1100]); % work computer
+            imagesc(crop,[0,max(crop, [], 'all')/2])
+%             set(gcf,'Position',[1150,50,700,1100]); % work computer
+            set(gcf,'Position',[25,25,600,800]); %laptop
             disp(['max intensity is ', num2str(max(kymograph,[], 'all'))]);
           else
-            imagesc(crop);      
-            set(gcf,'Position',[25,25,600,800]); %laptop %set(gcf,'Position',[1150,50,700,1100]); %work computer
+            imagesc(crop);
+%             set(gcf,'Position',[1150,50,700,1100]); %work computer
+            set(gcf,'Position',[25,25,600,800]); %laptop
           end
 
         ksize = size(crop);
@@ -250,7 +220,7 @@ for which = 1:length(data)
         transpose(wrange);
         clf
 
-        filename = [data(which).name, '_tracenum_', num2str(j)];
+        filename = [file_names{1,which}, '_tracenum_', num2str(j)];
         cd(segmentation_dir);
         save(filename);
         if j ~= num_of_traces
@@ -264,8 +234,7 @@ for which = 1:length(data)
         end
 disp(['this', num2str(j), 'out of', num2str(num_of_traces)])
     end
-disp(['you are on trace ', num2str(which), ' out of ', num2str(length(data))])
-tic
+disp(['you are on trace ', num2str(which), ' out of ', num2str(length(file_names))])
 end
 
 clc

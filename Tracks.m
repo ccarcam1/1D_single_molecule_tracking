@@ -165,7 +165,7 @@ end
 
 fig=figure;
 imagesc(figure_manytraces,[0,max(figure_manytraces, [], 'all')/3])
-colormap(flipud(gray));
+colormap(gray);
 axis off;
 iptsetpref('ImshowBorder','tight')
 % print(fig, ['test for cutoffpoint equal ' , num2str(startingpt), ' to ', num2str(cutoffpoint)], '-dpng', '-r1200')
@@ -210,7 +210,41 @@ iptsetpref('ImshowBorder','tight')
 
 
 
+%% Track summary plus scalebars
+middleof = abs(len2tracenum(1,:)- mean(len2tracenum(1,:)));
+find(middleof == min(middleof))
+minimumstart = find(middleof == min(middleof))-4;
+maxstop = find(middleof == min(middleof))  +15;
+% new2(1:2,:) = B(1:2,new)
+% new2(3,:) = I(new)
+startingpt = minimumstart;
+cutoffpoint = maxstop;
+figure_manytraces = zeros(mydata(I(startingpt)).length,sum(len2tracenum(2,startingpt:cutoffpoint)));
+widthtonow = 1;
+for i = startingpt:cutoffpoint
+    figure_manytraces(1:(len2tracenum(1,i)),(widthtonow:(len2tracenum(2,i)+widthtonow-1))) = mydata(I(i)).crop;
+    widthtonow = widthtonow + len2tracenum(2,i);
+end
 
+fig=figure;
+hold on
+ %x axis dimensions    
+    xticklabels = [(0:3:(size(figure_manytraces,2)*0.1))];
+    xticks = linspace(1, size(figure_manytraces, 2), numel(xticklabels));
+    set(gca, 'XTick', xticks,'XColor','k', 'XTickLabel', xticklabels, 'FontSize',12)
+%y axis dimensions
+    zz = (size(figure_manytraces,1)*mydata(i).timestep)/1000;
+    yy = round(zz/10);
+    yticklabels = ([0:yy:zz]);
+    yticks = linspace(1, size(figure_manytraces,1), numel(yticklabels));
+    set(gca, 'YTick', yticks,'YColor','k', 'YTickLabel', yticklabels,'YDir','reverse','FontSize',12)
+    ylabel('time (s)')
+    xlabel('distance (\mum)')
+
+imagesc(figure_manytraces,[0,max(figure_manytraces, [], 'all')/3])
+   
+hold off
+colormap(gray);
 
 
 
