@@ -1,5 +1,5 @@
 %% save the directory information here for the rest
-path_start = 'D:\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\Projects\SWR1 Project\2020-03-04-Cy5dCas9Cy3SWR1\';
+path_start = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\Projects\SWR1 Project\sliding + Cas9 marker\2020-03-04-Cy5_dCas9_Cy3_SWR1\';
 cd(path_start);
 mkdir container;
 cd('container');
@@ -112,8 +112,8 @@ save('data.mat', 'data');
 ...max intensity 
 ...The workspace for each trace will be saved, indicating which trace it is
 ...file names
-cd(container_path)
-clc
+% cd(container_path)
+% clc
 clear
 mat = dir('*.mat'); % matlab structures paths
 for q = 1:length(mat)
