@@ -197,7 +197,7 @@ for which = 1:length(data)
 
         d=mean(BG);
 
-        dsd=2*std(BG);
+        dsd=2*std(BG); %% this gives you c
         dmin=d-(2*dsd);
         dmax=d+(2*dsd);
         close;
@@ -324,7 +324,6 @@ for which2 = 100
          gof = struct( 'sse', cell( 2, 1 ), ...
              'rsquare', [], 'dfe', [], 'adjrsquare', [], 'rmse', [] );
          [xData, yData] = prepareCurveData( wrange, subcrop );
-
          ft = fittype( 'd + (a*exp(-((x-b)/c)^2))', 'independent', 'x', 'dependent', 'y' );
          opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
          opts.Display = 'Off';
