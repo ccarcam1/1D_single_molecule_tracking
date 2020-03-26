@@ -155,6 +155,100 @@ end
 cd(container_path_dir)
 save('scan_data.mat', 'scan_data');
 disp('Done.');
+%% Scan Data Segmenting Particles 
+for i = 1:length(scan_data)
+    shapeis = size(scan_data(i).red_scan);
+    if length(shapeis) == 2
+        scan = scan_data(i).red_scan;
+            else
+        scan = reshape(scan_data(i).red_scan(end-1,:,:),[shapeis(2),shapeis(3)]);
+    end
+        x = [];
+        y = [];
+        subscan = {};
+        subcrop = {};
+        % Finding centroids
+        imagesc(scan);
+        axis(gca, 'image')
+        prompt = 'how many centroids?';
+        num_particles = input(prompt);
+        if num_particles>0
+            [x,y] = ginput(num_particles);
+            for j = 1:num_particles
+                if scan_data(i).pixelsize == 100
+                    [a,b] = imcrop(scan, [round(x(j))-5, round(y(j))-5, 10, 10]);
+                else
+                	[a,b] = imcrop(scan, [round(x(j))-15, round(y(j))-15, 30, 30]);
+                end
+                scan_data(i).subscan{j} = a;
+                scan_data(i).subcrop{j} = b;
+            end
+            hold on
+            for k = 1:num_particles
+                rectangle('Position', scan_data(i).subcrop{k},'LineWidth',2);
+                
+            end
+            hold off
+             prompt = 'hold?';
+             blank = input(prompt);
+        else
+        end
+end
+%% Fitting 2D gaussing to the cropped particles
+for i = 1:length(scan_data)
+    for j = 1:length(scan_data(i).subscan)
+        if scan_data(i).pixelsize == 100
+            MdataSize = 11; % Size of nxn data matrix
+            [X,Y] = meshgrid(-5:5);
+        else
+            MdataSize = 31; % Size of nxn data matrix
+            [X,Y] = meshgrid(-15:15);
+        end
+        x0(1) = max(max(scan_data(i).subscan{j})); %amplitude_guess
+        x0(2) = 0; %startingx_guess
+        x0(3) = 3; %sigmax_guess 
+        x0(4) = 0; % startingy_guess
+        x0(5) = 3; % sigmay_guess 
+        x0(6) = 0; % rotation degrees
+        InterpolationMethod = 'nearest'; % 'nearest','linear','spline','cubic'
+        xdata = zeros(size(X,1),size(Y,2),2);
+        xdata(:,:,1) = X;
+        xdata(:,:,2) = Y;
+        Z = scan_data(i).subscan{j}; %DATA HERE
+        lb = [0,-MdataSize/2,0,-MdataSize/2,0,-pi/4];
+        ub = [realmax('double'),MdataSize/2,(MdataSize/2)^2,MdataSize/2,(MdataSize/2)^2,pi/4];
+        [x,resnorm,residual,exitflag] = lsqcurvefit(@D2GaussFunctionRot,x0,xdata,Z);
+        scan_data(i).fit{j} = x;
+    end
+end
+
 %%
 
+count1 = 1;
+count2 = 1;
+
+for i = 4%1:length(scan_data)
+    for j = 1:length(scan_data(i).subscan)
+        if scan_data(i).pixelsize == 100
+            xy_sigma_100{count1} = [round(scan_data(i).fit{j}(3)*100),round(scan_data(i).fit{j}(5)*100)];
+            xy_FWHM_100(count1)= 2.355*((xy_sigma_100{count1}(1)+xy_sigma_100{count1}(2))/2);
+            count1 = count1+1;
+        else
+            xy_sigma_30{count2} = [round(scan_data(i).fit{j}(3)*30),round(scan_data(i).fit{j}(5)*30)];
+            xy_FWHM_30(count2) = 2.355*((xy_sigma_30{count2}(1)+xy_sigma_30{count2}(2))/2);
+            count2 = count2+1;
+        end
+    end
+end
+
+%%
+figure(1)
+% histogram(xy_FWHM_100)
+% figure(2)
+% histogram(xy_FWHM_30)
+% figure(3) 
+histogram(all_FWHM)
+title('FWHM Cy5-dCas9 Scans - panning through confocal plane')
+xlabel('distance (nm)')
+ylabel('counts')
 
