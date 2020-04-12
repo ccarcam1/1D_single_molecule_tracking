@@ -98,8 +98,8 @@ for k = 1:length(mydata)
         ind=find(d(:, 1) == time_lags(i));
         D_all(i, 1) = tau * time_lags(i); % converts to real time lag
         D_all(i, 2) = mean(d(ind, 2)); %MSD in x-direction for timelag i
-        D_all(i, 3) = std(d(ind, 2))/sqrt(length(ind)); %sem in x-direction for timelag i
-        D_all(i, 4) = std(d(ind, 2)); % std
+% %         D_all(i, 3) = std(d(ind, 2))/sqrt(length(ind)); %sem in x-direction for timelag i***********************************D13 
+% %         D_all(i, 4) = std(d(ind, 2)); % std
         D_all(i, 5) = length(d(ind, 2)); % num points
     end
     mydata(k).MSD = D_all;
