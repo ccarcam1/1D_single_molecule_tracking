@@ -18,7 +18,7 @@ my_directory_function('green red');
     % FUNCTION: my_kymodata_structure --> no input arguments
     % Must Start In "Container" directory
     % Final data structure includes all colors 
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
 cd(my_directory)
 cd container
 my_kymodata_structure2('green red')
@@ -28,12 +28,13 @@ my_kymodata_structure2('green red')
     % Must Start In "Container" directory
     % linescan_time_mat
     % kymo_mat_green
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
 cd(my_directory)
 cd([my_directory, 'container'])
 load('data.mat')
 % green_segmentation = my_segment_kymos_improvedwithzoom(1,3, 'green'); % length(data)
-red_segmentation = my_segment_kymos_improvedwithzoom2(1,length(data), 'red'); % length(data)
+% end_here = length(uniq_kymo_names);
+second_pass_segment = my_second_pass_two_color_particle_picking(Green_MY_DATA, Red_MY_DATA, 2, 16);
 %% Combine separate strcutures 
 % % a=0;
 % a=length(green_segmentation);
@@ -63,13 +64,13 @@ end
     % x = starting point
     % y = ending (can be length(segmented_kymos))
     % segmented_kymos --> results from previous section 
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
 cd(my_directory);
 cd([my_directory, 'segmentation']);
-load('green_segmentation_ALL.mat');
-green_gaussfitting = my_gaussian_fitting(1,length(green_segmentation),green_segmentation);
+load('two-color second pass segmentation 2 to 16.mat');
+second_pass_gaussfitting = my_gaussian_fitting(1,length(second_pass_segment),second_pass_segment);
 cd([my_directory, 'fitting']);
-save('green_gaussfitting.mat', 'green_gaussfitting')
+save('second_pass_gaussfitting.mat', 'second_pass_gaussfitting')
 
 % cd(my_directory);
 % cd([my_directory, 'segmentation']);
@@ -94,26 +95,26 @@ save('green_gaussfitting.mat', 'green_gaussfitting')
 % save('red_fitting_MSD_structure.mat', 'red_fitting_MSD_structure')
 
 clear
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
 cd([my_directory, 'container']);
 load('data.mat')
 cd([my_directory, 'segmentation']);
-load('red_segmentation_ALL.mat')
+load('two-color second pass segmentation 2 to 16.mat')
 cd([my_directory, 'fitting']);
-load('red_gaussfitting.mat')
+load('second_pass_gaussfitting.mat')
 cd([my_directory, 'MSD analysis']);
-red_fitting_MSD_structure = my_condense_relevant_info('red', data, red_gaussfitting, red_segmentation);
-save('red_fitting_MSD_structure.mat', 'red_fitting_MSD_structure')
+second_pass = my_condense_relevant_info('green', data, second_pass_gaussfitting, structure_name);
+save('second_pass.mat', 'second_pass')
 
 %% Determine Which Fits look good by eye (part 2 visualize traces and decide which to keep)
 % function keep_these_structure = my_visualize_fits(start_var, end_var, pre_MSD)
 my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
-cd([my_directory, 'MSD analysis']);
-load('two_color_second_pass.mat');
+% cd([my_directory, 'MSD analysis']);
+% load('second_pass.mat');
 disp('..................')
 startis = 1;
-stopis= length(second_pass_fitting); 
-second_pass_fitting_keep = my_visualize_fits(startis, stopis, second_pass_fitting);
+stopis= length(second_pass); 
+second_pass_fitting_keep = my_visualize_fits(startis, stopis, second_pass);
 save(['second_pass_fitting ', num2str(startis), ' to ', num2str(stopis),'.mat'], 'second_pass_fitting_keep')
 
 % % Combine saved structures into one:
@@ -125,27 +126,27 @@ save(['second_pass_fitting ', num2str(startis), ' to ', num2str(stopis),'.mat'],
 % % my_visualize_fits2(1, 1, green_fitting_MSD_structure);
 %% get rid of the blank cells get the MY_DATA structure
 counter = 1;
-for i = 1:length(keep_these_structure)
-    if ~isempty(keep_these_structure(i).name)
-        MY_DATA(counter)= keep_these_structure(i);
+for i = 1:length(second_pass_fitting_keep)
+    if ~isempty(second_pass_fitting_keep(i).name)
+        second_pass_MY_DATA(counter)= second_pass_fitting_keep(i);
         counter= counter+1;
     end
 end
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
 cd([my_directory, 'MSD analysis']);
-save('Red_MY_DATA.mat', 'MY_DATA')
+save('SecondPass_MyData.mat', 'second_pass_MY_DATA')
 
 %% MSD calculation
 % %function MSDs = my_MSD_calculator(structure_with_data)
-clc 
-clear
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
-cd([my_directory, 'MSD analysis']);
-load('Red_MY_DATA.mat');
+% clc 
+% clear
+% my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
+% cd([my_directory, 'MSD analysis']);
+% load('Red_MY_DATA.mat');
 
 disp('New Run');
 MSDs = my_MSD_calculator2(MY_DATA);
-save('Red_MSDs.mat', 'MSDs')
+save('secondpass_MSDs.mat', 'MSDs')
 
 [rsquared,pvalue,yintercept,slopeval,fit_cutoffis] = myCutOffFinder(MSDs);
 for i = 1:length(MY_DATA)
@@ -167,7 +168,7 @@ for i = 1:length(MY_DATA)
         MY_DATA(i).pval = pvalue{i}(length(pvalue{i}/4));
     end
 end
-save('Red_MY_DATA_MSDs.mat', 'MY_DATA')
+save('secondpass_MY_DATA_MSDs.mat', 'MY_DATA')
 
 %% Processing 1D diffusion 
 % I will consider anything shorter than 0.75 seconds to be short
@@ -236,138 +237,6 @@ clear x
 clear y
 clear z
 clear a
-%%
-% % Visualize NaNs to determine which to keep
-% 
-% for i = 1:length(NaN_which)
-% %     k = lookhere(i);
-% % for i = 1:length(NaN_negative_which)
-%     k = NaN_which(i);
-%     if ~isnan(MY_DATA(k).fit_cutoffis)
-%         figure
-%         set(gcf,'Position',[60,30,1400,1100]);
-%         subplot(2,2,1);
-%         MSD = MY_DATA(k).MSD;
-%         n=size(MY_DATA(k).particle_tracked(:,2), 1);
-%         errorbar(MSD(1:n-1, 1), MSD(1:n-1, 2), MSD(1:n-1, 3), 'ok')
-%         hold on
-%         threshold = MY_DATA(k).fit_cutoffis;
-%         x = MSD(1:threshold, 1);
-%         y = MSD(1:threshold, 2);
-%         mdl = fitlm(x,y);
-%         plot(mdl);
-%         slope = mdl.Coefficients.Estimate(2);
-%         m = MY_DATA(k).name;
-%         title(['Best linear fit for ', m],'FontSize', 14)
-%         xlabel('time (s)', 'FontSize', 14)
-%         ylabel('MSD (um^2)', 'FontSize', 14)
-%         legend('off')
-%         save_name  = [m,'.png'];
-%         hold off
-% %         saveas(gcf, ['full length ', save_name])
-%         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%         subplot(2,2,3);
-%         errorbar(MSD(1:threshold, 1), MSD(1:threshold, 2), MSD(1:threshold, 3), 'ok')
-%         hold on
-%         mdl = fitlm(x,y);
-%         plot(mdl)
-%         title(['Best linear fit for ', m],'FontSize', 14)
-%         xlabel('time (s)', 'FontSize', 14)
-%         ylabel('MSD (um^2)', 'FontSize', 14)
-%         annotation('textbox',[.13 .1 .1 .35],'String',['R^2= ', num2str(MY_DATA(k).rsquared(threshold))...
-%             , newline, 'p-value= ', num2str(MY_DATA(k).pvalue(threshold))...
-%             , newline, 'slope= ', num2str(slope)...
-%             , newline, 'D= ',num2str(slope/2), ' {\mu}m^2/sec'...
-%             ],'FitBoxToText','on')
-%         legend('off')
-%         hold off
-%         MY_DATA(k).slope = slope;
-%         MY_DATA(k).r2 = MY_DATA(k).rsquared(threshold);
-%         disp(k)
-%         s3=subplot(2,2,[2,4]);
-%         imagesc(MY_DATA(k).crop);
-%         colormap(gray);
-%         hold on
-%         plot(s3,MY_DATA(k).particle_tracked(:,2),MY_DATA(k).particle_tracked(:,1),'-y');
-%         title('overlay');
-%         xlabel('x, px');
-%         ylabel('y, px');
-%         hold off
-%         choice = menu('Menu','Next','Mark','End Session');
-%         if choice == 1
-%             close all
-%         elseif choice == 2
-%             prompt = 'Notes:';
-%             MY_DATA(k).notes = input(prompt, 's');
-%             close all
-%         elseif choice == 3
-%             close all
-%             break
-%         end
-%     else
-%                 figure
-%         set(gcf,'Position',[60,30,1400,1100]);
-%         subplot(2,2,1);
-%         MSD = MY_DATA(k).MSD;
-%         n=size(MY_DATA(k).particle_tracked(:,2), 1);
-%         errorbar(MSD(1:n-1, 1), MSD(1:n-1, 2), MSD(1:n-1, 3), 'ok')
-%         hold on
-%         threshold = n/4;
-%         x = MSD(1:threshold, 1);
-%         y = MSD(1:threshold, 2);
-%         mdl = fitlm(x,y);
-%         plot(mdl);
-%         slope = mdl.Coefficients.Estimate(2);
-%         m = MY_DATA(k).name;
-%         title(['NaN Best linear fit for ', m],'FontSize', 14)
-%         xlabel('time (s)', 'FontSize', 14)
-%         ylabel('MSD (um^2)', 'FontSize', 14)
-%         legend('off')
-%         save_name  = [m,'.png'];
-%         hold off
-% %         saveas(gcf, ['full length ', save_name])
-%         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%         subplot(2,2,3);
-%         errorbar(MSD(1:threshold, 1), MSD(1:threshold, 2), MSD(1:threshold, 3), 'ok')
-%         hold on
-%         mdl = fitlm(x,y);
-%         plot(mdl)
-%         title(['NaN Best linear fit for ', m],'FontSize', 14)
-%         xlabel('time (s)', 'FontSize', 14)
-%         ylabel('MSD (um^2)', 'FontSize', 14)
-%         annotation('textbox',[.13 .1 .1 .35],'String',['R^2= ', num2str(mdl.Rsquared.Ordinary)...
-%             , newline, 'p-value= ', num2str(mdl.Coefficients.pValue(2))...
-%             , newline, 'slope= ', num2str(slope)...
-%             , newline, 'D= ',num2str(slope/2), ' {\mu}m^2/sec'...
-%             ],'FitBoxToText','on')
-%         legend('off')
-%         hold off
-%         MY_DATA(k).slope = slope;
-%         MY_DATA(k).r2 = mdl.Rsquared.Ordinary;
-%         disp(k)
-%         s3=subplot(2,2,[2,4]);
-%         imagesc(MY_DATA(k).crop);
-%         colormap(gray);
-%         hold on
-%         plot(s3,MY_DATA(k).particle_tracked(:,2),MY_DATA(k).particle_tracked(:,1),'-y');
-%         title('overlay');
-%         xlabel('x, px');
-%         ylabel('y, px');
-%         hold off
-%         choice = menu('Menu','Next','Mark','End Session');
-%         if choice == 1
-%             close all
-%         elseif choice == 2
-%             prompt = 'Notes:';
-%             MY_DATA(k).notes = input(prompt, 's');
-%             close all
-%         elseif choice == 3
-%             close all
-%             break
-%         end
-%     end
-% end
-
 %% Finalize Data Structures 
 % what to make into 0, these aren't moving
 % negative_which_noNaN
@@ -383,7 +252,7 @@ for i = 1:length(NaN_negative_which)
     MY_DATA(k).slope = 0;
 end
 
-save('GREEN_MY_DATA_final_structure.mat', 'MY_DATA')
+save('secondpass_MY_DATA_final_structure.mat', 'MY_DATA')
 
 %% Get rid of poor fitting data
 cut_off_r2 = 0.8;

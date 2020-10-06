@@ -408,7 +408,7 @@ save('file_names', 'file_names')
 clc
 clear
 % load('path_start.mat')
-path_start = 'D:\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\SWR1\2019-11-25 25 mM KCl\';
+path_start = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\salt concentrations ATP\2019-11-25 25 mM KCl\';
 % path_start = 'D:\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\SWR1\2019-10-23 SWR1 gamma S\';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 input_dir3 =  [path_start,'fitting\'];   
@@ -426,7 +426,7 @@ multiple_molecules = cell(4,length(file_names));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for which3 = 1:length(file_names)
-    path_start = 'D:\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\SWR1\2019-11-25 25 mM KCl\';
+path_start = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\salt concentrations ATP\2019-11-25 25 mM KCl\';
     cd([path_start,'filename\']);
     load('file_names');
     file = file_names{1,which3};

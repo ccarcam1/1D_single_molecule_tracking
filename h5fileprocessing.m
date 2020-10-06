@@ -1,4 +1,4 @@
-file = '20200211-174231 Marker 1.h5';
+file = '20191010-204131 Kymograph 63.h5';
 % h5disp(file);
 
 

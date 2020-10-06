@@ -1,11 +1,11 @@
 % %% combine gamma S results 
-% mydata= mydata_gammaS;
+% MY_DATA= MY_DATA_gammaS;
 % 
 % %%
 % 
-% x = length(mydata) +1;
-% for i = 1:length(mydata_gammaS)
-%     mydata(x) = mydata_gammaS(i)
+% x = length(MY_DATA) +1;
+% for i = 1:length(MY_DATA_gammaS)
+%     MY_DATA(x) = MY_DATA_gammaS(i)
 %     x = x+1;
 % end
 
@@ -13,27 +13,27 @@
 
 % I will consider anything shorter than 0.75 seconds to be short 
 
-for i = 1:length(mydata)
-    holdingplace(i) = size(mydata(i).frames, 1)*(mydata(i).timestep/1000);
+for i = 1:length(MY_DATA)
+    holdingplace(i) = size(MY_DATA(i).particle_tracked(:,2), 1)*(MY_DATA(i).line_time/1000);
 end
 % 
 lookhere = find(holdingplace < 2)
 x = 1;
 y = 1;
-for i = 1:length(mydata)
+for i = 1:length(MY_DATA)
     if holdingplace(i) >2
-       tempmydata(x) = mydata(i);
+       tempMY_DATA(x) = MY_DATA(i);
        x = x +1;
     else
-        shortmydata(y) = mydata(i);
+        shortMY_DATA(y) = MY_DATA(i);
        y = y +1;
     end
 end
 % 
-clear mydata
-mydata = tempmydata;
+clear MY_DATA
+MY_DATA = tempMY_DATA;
 %% Process NaN values
-% mydata = mydata_cas9;
+% MY_DATA = MY_DATA_cas9;
 
 NaN_negative_which = [];
 NaN_which = [];
@@ -44,18 +44,18 @@ x = 1;
 y = 1;
 z = 1;
 a = 1;
-for k = 1: length(mydata)
-    if isnan(mydata(k).fit_cutoff2)
+for k = 1: length(MY_DATA)
+    if isnan(MY_DATA(k).fit_cutoff2)
         NaN_which(x) = k;
         x = x+1;
-        if mydata(k).slope<0
+        if MY_DATA(k).slope<0
             NaN_negative_which(y) = k;
             y = y+1;
         else
             NaN_positive_which(a) = k;
             a = a+1;
         end
-    elseif mydata(k).slope<0
+    elseif MY_DATA(k).slope<0
         negative_which_noNaN(z) = k;
         z = z+1;
     end  
@@ -71,30 +71,30 @@ clear a
 % % NaN_which
 % % negative_which_noNaN
 
-for i = 1:length(lookhere)
+for i = 1:length(negative_which_noNaN)
 %     k = lookhere(i);
 % for i = 1:length(NaN_negative_which)
-k = NaN_negative_which(i);
-    if ~isnan(mydata(k).fit_cutoff2)
+    k = NaN_negative_which(i);
+    if ~isnan(MY_DATA(k).fit_cutoff2)
         figure
         set(gcf,'Position',[60,30,1400,1100]);
         subplot(2,2,1);
-        MSD = mydata(k).MSD;
-        n=size(mydata(k).coords, 1);
+        MSD = MY_DATA(k).MSD;
+        n=size(MY_DATA(k).coords, 1);
         errorbar(MSD(1:n-1, 1), MSD(1:n-1, 2), MSD(1:n-1, 3), 'ok')
         hold on
-        threshold = mydata(k).fit_cutoff2;
+        threshold = MY_DATA(k).fit_cutoff2;
         x = MSD(1:threshold, 1);
         y = MSD(1:threshold, 2);
         mdl = fitlm(x,y);
         plot(mdl);
         slope = mdl.Coefficients.Estimate(2);
-        m = mydata(k).mol_id;
+        m = MY_DATA(k).mol_id;
         title(['Best linear fit for ', m],'FontSize', 14)
         xlabel('time (s)', 'FontSize', 14)
         ylabel('MSD (um^2)', 'FontSize', 14)
         legend('off')
-        save_name  = [m, ' molecule number ', num2str(mydata(k).molecule_num),'.png'];
+        save_name  = [m, ' molecule number ', num2str(MY_DATA(k).molecule_num),'.png'];
         hold off
 %         saveas(gcf, ['full length ', save_name])
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,21 +106,21 @@ k = NaN_negative_which(i);
         title(['Best linear fit for ', m],'FontSize', 14)
         xlabel('time (s)', 'FontSize', 14)
         ylabel('MSD (um^2)', 'FontSize', 14)
-        annotation('textbox',[.13 .1 .1 .35],'String',['R^2= ', num2str(mydata(k).rsquared(threshold))...
-            , newline, 'p-value= ', num2str(mydata(k).pvalue(threshold))...
+        annotation('textbox',[.13 .1 .1 .35],'String',['R^2= ', num2str(MY_DATA(k).rsquared(threshold))...
+            , newline, 'p-value= ', num2str(MY_DATA(k).pvalue(threshold))...
             , newline, 'slope= ', num2str(slope)...
             , newline, 'D= ',num2str(slope/2), ' {\mu}m^2/sec'...
             ],'FitBoxToText','on')
         legend('off')
         hold off
-        mydata(k).slope = slope;
-        mydata(k).r2 = mydata(k).rsquared(threshold);
+        MY_DATA(k).slope = slope;
+        MY_DATA(k).r2 = MY_DATA(k).rsquared(threshold);
         disp(k)
         s3=subplot(2,2,[2,4]);
-        imagesc(mydata(k).crop);
+        imagesc(MY_DATA(k).crop);
         colormap(gray);
         hold on
-        plot(s3,mydata(k).coords,mydata(k).frames,'-y');
+        plot(s3,MY_DATA(k).coords,MY_DATA(k).particle_tracked(:,2),'-y');
         title('overlay');
         xlabel('x, px');
         ylabel('y, px');
@@ -130,7 +130,7 @@ k = NaN_negative_which(i);
             close all
         elseif choice == 2
             prompt = 'Notes:';
-            mydata(k).notes = input(prompt, 's');
+            MY_DATA(k).notes = input(prompt, 's');
             close all
         elseif choice == 3
             close all
@@ -140,8 +140,8 @@ k = NaN_negative_which(i);
                 figure
         set(gcf,'Position',[60,30,1400,1100]);
         subplot(2,2,1);
-        MSD = mydata(k).MSD;
-        n=size(mydata(k).coords, 1);
+        MSD = MY_DATA(k).MSD;
+        n=size(MY_DATA(k).coords, 1);
         errorbar(MSD(1:n-1, 1), MSD(1:n-1, 2), MSD(1:n-1, 3), 'ok')
         hold on
         threshold = n/4;
@@ -150,12 +150,12 @@ k = NaN_negative_which(i);
         mdl = fitlm(x,y);
         plot(mdl);
         slope = mdl.Coefficients.Estimate(2);
-        m = mydata(k).mol_id;
+        m = MY_DATA(k).mol_id;
         title(['NaN Best linear fit for ', m],'FontSize', 14)
         xlabel('time (s)', 'FontSize', 14)
         ylabel('MSD (um^2)', 'FontSize', 14)
         legend('off')
-        save_name  = [m, ' molecule number ', num2str(mydata(k).molecule_num),'.png'];
+        save_name  = [m, ' molecule number ', num2str(MY_DATA(k).molecule_num),'.png'];
         hold off
 %         saveas(gcf, ['full length ', save_name])
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -174,14 +174,14 @@ k = NaN_negative_which(i);
             ],'FitBoxToText','on')
         legend('off')
         hold off
-        mydata(k).slope = slope;
-        mydata(k).r2 = mdl.Rsquared.Ordinary;
+        MY_DATA(k).slope = slope;
+        MY_DATA(k).r2 = mdl.Rsquared.Ordinary;
         disp(k)
         s3=subplot(2,2,[2,4]);
-        imagesc(mydata(k).crop);
+        imagesc(MY_DATA(k).crop);
         colormap(gray);
         hold on
-        plot(s3,mydata(k).coords,mydata(k).frames,'-y');
+        plot(s3,MY_DATA(k).coords,MY_DATA(k).particle_tracked(:,2),'-y');
         title('overlay');
         xlabel('x, px');
         ylabel('y, px');
@@ -191,7 +191,7 @@ k = NaN_negative_which(i);
             close all
         elseif choice == 2
             prompt = 'Notes:';
-            mydata(k).notes = input(prompt, 's');
+            MY_DATA(k).notes = input(prompt, 's');
             close all
         elseif choice == 3
             close all
@@ -208,11 +208,11 @@ end
 
 for i = 1:length(negative_which_noNaN)
     k = negative_which_noNaN(i);
-    mydata(k).slope = 0;
+    MY_DATA(k).slope = 0;
 end
 for i = 1:length(NaN_negative_which)
     k = NaN_negative_which(i);
-    mydata(k).slope = 0;
+    MY_DATA(k).slope = 0;
 end
 
 %%
@@ -221,15 +221,15 @@ diffusioncoeff = [];
 intercept = [];
 r2 = [];
 x = 1;
-for i = 1:length(mydata)
-        slope(i) = mydata(i).slope;
-        r2(i) = mydata(i).r2;
-        intercept(i) = mydata(i).intercept;
-        if mydata(i).r2>0.8
-            mydata(i).r2point8 = 1;
+for i = 1:length(MY_DATA)
+        slope(i) = MY_DATA(i).slope;
+        r2(i) = MY_DATA(i).r2;
+        intercept(i) = MY_DATA(i).intercept;
+        if MY_DATA(i).r2>0.8
+            MY_DATA(i).r2point8 = 1;
             x = x+1;
         else 
-            mydata(i).r2point8 = 0;
+            MY_DATA(i).r2point8 = 0;
         end
 end
 diffusioncoeff= slope/2;
@@ -241,14 +241,14 @@ save('Dr2greater08','Dr2greater08');
 %%
 r2_gammaS= r2;
 diffusioncoeff_gammaS = diffusioncoeff;
-mydata_gammaS= mydata;
+MY_DATA_gammaS= MY_DATA;
 intercept_gammaS = intercept;
 Dr2less08_gammaS = Dr2less08;
 Dr2greater08_gammaS = Dr2greater08;
 
 save('r2_gammaS', 'r2_gammaS')
 save('diffusioncoeff_gammaS', 'diffusioncoeff_gammaS')
-save('mydata_gammaS', 'mydata_gammaS')
+save('MY_DATA_gammaS', 'MY_DATA_gammaS')
 save('intercept_gammaS', 'intercept_gammaS')
 save('Dr2less08_gammaS','Dr2less08_gammaS'); 
 save('Dr2greater08_gammaS','Dr2greater08_gammaS');
@@ -304,9 +304,9 @@ length(diffusioncoeff_allCas9)
 
 
 %%
-mydata = mydata_allATP;
-for i = 1:length(mydata)
-    timepertrace(i) = length(mydata(i).frames)*(mydata(i).timestep/1000);
+MY_DATA = MY_DATA_allATP;
+for i = 1:length(MY_DATA)
+    timepertrace(i) = length(MY_DATA(i).particle_tracked(:,2))*(MY_DATA(i).line_time/1000);
 end
 
 %%
