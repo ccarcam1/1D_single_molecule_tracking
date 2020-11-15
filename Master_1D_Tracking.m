@@ -6,52 +6,50 @@
     % FUNCTION: my_directory_function('color',)
     % Must Start In Directory Of Interest
     % Directory must be made in jupyter notebook script
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
+    
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\SWR1 + ZB dimer without ATP\2020-11-11\';
 cd(my_directory)
 % my_directory_function('green');
 
 %For two color analysis
-my_directory_function('green red');
+% my_directory_function('green red');
+my_directory_function('green');
+
 
 %% Extract and save kymograph information
 % REQUIREMENTS
     % FUNCTION: my_kymodata_structure --> no input arguments
     % Must Start In "Container" directory
     % Final data structure includes all colors 
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\SWR1 + ZB dimer without ATP\2020-11-11\';
 cd(my_directory)
 cd container
-my_kymodata_structure2('green red')
+% my_kymodata_structure2('green red')
+my_kymodata_structure2('green')
 %% segment particles from different color channels
 % REQUIREMENTS
-    % FUNCTION: structure_name = my_segment_kymos(start_var, end_var, which_color)
+    % FUNCTION: structure_name = my_segment_kymos_improvedwithzoom2(start_var, end_var, which_color)
     % Must Start In "Container" directory
     % linescan_time_mat
     % kymo_mat_green
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\SWR1 + ZB dimer without ATP\2020-11-11\';
 cd(my_directory)
 cd([my_directory, 'container'])
 load('data.mat')
-% green_segmentation = my_segment_kymos_improvedwithzoom(1,3, 'green'); % length(data)
-red_segmentation = my_segment_kymos_improvedwithzoom2(1,length(data), 'red'); % length(data)
+green_segmentation = my_segment_kymos_improvedwithzoom2(36 ,39, 'green'); % length(data)
 %% Combine separate strcutures 
-% % a=0;
-% a=length(green_segmentation);
-% for i = 1:length(structure_name)
-%     green_segmentation(i+a) = structure_name(i);
-% end
-
-
-% a=0;
-a=length(red_segmentation);
+% a=0;% select this for the first one
+a=length(green_segmentation_ALL);% for the first one, don't include this.
 for i = 1:length(structure_name)
-    red_segmentation(i+a) = structure_name(i);
+    green_segmentation_ALL(i+a) = structure_name(i);
 end
+disp("Done")
+
 
 %% get rid of crops that are too small to correctly get gaussian fits
 counter= 1;
-for i = 1:length(green_segmentation)
-    if size(green_segmentation(i).crop,1)<10
+for i = 1:length(green_segmentation_ALL)
+    if size(green_segmentation_ALL(i).crop,1)<10
     recordthis(counter) = i ;
     counter = counter +1;
     end
@@ -63,11 +61,11 @@ end
     % x = starting point
     % y = ending (can be length(segmented_kymos))
     % segmented_kymos --> results from previous section 
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
-cd(my_directory);
-cd([my_directory, 'segmentation']);
-load('green_segmentation_ALL.mat');
-green_gaussfitting = my_gaussian_fitting(1,length(green_segmentation),green_segmentation);
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\SWR1 + ZB dimer without ATP\2020-11-11\';
+% cd(my_directory);
+% cd([my_directory, 'segmentation']);
+% load('red_segmentation 1 to 33.mat');
+green_gaussfitting = my_gaussian_fitting(1,length(green_segmentation_ALL),green_segmentation_ALL);
 cd([my_directory, 'fitting']);
 save('green_gaussfitting.mat', 'green_gaussfitting')
 
@@ -82,39 +80,27 @@ save('green_gaussfitting.mat', 'green_gaussfitting')
 % REQUIREMENTS
     % FUNCTION keep_these_structure = my_visualize_fits(start_var, end_var, gaussfitting, data, structure_name)
 % clear
-% my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data\Projects\SWR1 Project\sliding + Cas9 marker\2020-03-04-Cy5_dCas9_Cy3_SWR1\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\SWR1 + ZB dimer without ATP\2020-11-11\';
 % cd([my_directory, 'container']);
 % load('data.mat')
 % cd([my_directory, 'segmentation']);
-% load('red_segmentation.mat')
+% load('red_segmentation_ALL.mat')
 % cd([my_directory, 'fitting']);
 % load('red_gaussfitting.mat')
-% cd([my_directory, 'MSD analysis']);
-% red_fitting_MSD_structure = my_condense_relevant_info('red', data, red_gaussfitting, structure_name);
-% save('red_fitting_MSD_structure.mat', 'red_fitting_MSD_structure')
-
-clear
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
-cd([my_directory, 'container']);
-load('data.mat')
-cd([my_directory, 'segmentation']);
-load('red_segmentation_ALL.mat')
-cd([my_directory, 'fitting']);
-load('red_gaussfitting.mat')
 cd([my_directory, 'MSD analysis']);
-red_fitting_MSD_structure = my_condense_relevant_info('red', data, red_gaussfitting, red_segmentation);
-save('red_fitting_MSD_structure.mat', 'red_fitting_MSD_structure')
+green_fitting_MSD_structure = my_condense_relevant_info('green', data, green_gaussfitting, green_segmentation_ALL);
+save('green_fitting_MSD_structure.mat', 'green_fitting_MSD_structure')
 
 %% Determine Which Fits look good by eye (part 2 visualize traces and decide which to keep)
 % function keep_these_structure = my_visualize_fits(start_var, end_var, pre_MSD)
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding plus Cas9 marker\2020_09_02_dCas9_SWR1_twocolorsuccess\second pass two color\';
+my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\SWR1 + ZB dimer without ATP\2020-11-11\';
 cd([my_directory, 'MSD analysis']);
-load('two_color_second_pass.mat');
+% load('green_fitting_MSD_structure.mat');
 disp('..................')
-startis = 1;
-stopis= length(second_pass_fitting); 
-second_pass_fitting_keep = my_visualize_fits(startis, stopis, second_pass_fitting);
-save(['second_pass_fitting ', num2str(startis), ' to ', num2str(stopis),'.mat'], 'second_pass_fitting_keep')
+startis = 201;
+stopis = length(green_fitting_MSD_structure); 
+green_keep_these = my_visualize_fits(startis, stopis, green_fitting_MSD_structure);
+save(['green_keep_these ', num2str(startis), ' to ', num2str(stopis),'.mat'], 'green_keep_these')
 
 % % Combine saved structures into one:
 % a=length(green_keep_these_structure);
@@ -123,29 +109,39 @@ save(['second_pass_fitting ', num2str(startis), ' to ', num2str(stopis),'.mat'],
 % end
 
 % % my_visualize_fits2(1, 1, green_fitting_MSD_structure);
+
+%%
+% a=0;% select this for the first one
+a=length(green_keep_these_All);% for the first one, don't include this.
+for i = 1:length(green_keep_these)
+    green_keep_these_All(i+a) = green_keep_these(i);
+end
+disp("Done")
 %% get rid of the blank cells get the MY_DATA structure
 counter = 1;
-for i = 1:length(keep_these_structure)
-    if ~isempty(keep_these_structure(i).name)
-        MY_DATA(counter)= keep_these_structure(i);
+for i = 1:length(green_keep_these_All)
+    if ~isempty(green_keep_these_All(i).name)
+        MY_DATA(counter)= green_keep_these_All(i);
         counter= counter+1;
     end
 end
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
-cd([my_directory, 'MSD analysis']);
-save('Red_MY_DATA.mat', 'MY_DATA')
+disp('DONE')
+% my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
+% cd([my_directory, 'MSD analysis']);
+% save('Red_MY_DATA.mat', 'MY_DATA')
 
 %% MSD calculation
 % %function MSDs = my_MSD_calculator(structure_with_data)
-clc 
-clear
-my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Raw_Data\2020_09_02_dCas9_SWR1_twocolorsuccess\';
-cd([my_directory, 'MSD analysis']);
-load('Red_MY_DATA.mat');
+% clc 
+% clear
+% my_directory = 'C:\Users\carca\OneDrive - Johns Hopkins University\Ha_CCarcamo\Data_Analysis\Projects\SWR1 Project\sliding\ADP\2020-09-22 SWR1 ADP\';
+% cd([my_directory, 'MSD analysis']);
+% load('Red_MY_DATA.mat');
 
 disp('New Run');
 MSDs = my_MSD_calculator2(MY_DATA);
-save('Red_MSDs.mat', 'MSDs')
+% save('Red_MSDs.mat', 'MSDs')
+save('Green_MSDs.mat', 'MSDs')
 
 [rsquared,pvalue,yintercept,slopeval,fit_cutoffis] = myCutOffFinder(MSDs);
 for i = 1:length(MY_DATA)
@@ -167,7 +163,8 @@ for i = 1:length(MY_DATA)
         MY_DATA(i).pval = pvalue{i}(length(pvalue{i}/4));
     end
 end
-save('Red_MY_DATA_MSDs.mat', 'MY_DATA')
+% save('Red_MY_DATA_MSDs.mat', 'MY_DATA')
+save('Green_MY_DATA_MSDs.mat', 'MY_DATA')
 
 %% Processing 1D diffusion 
 % I will consider anything shorter than 0.75 seconds to be short
@@ -236,6 +233,89 @@ clear x
 clear y
 clear z
 clear a
+
+%% Finalize Data Structures 
+% what to make into 0, these aren't moving
+% negative_which_noNaN
+% and
+% NaN_negative_which
+
+for i = 1:length(negative_which_noNaN)
+    k = negative_which_noNaN(i);
+    MY_DATA(k).slope = 0;
+end
+for i = 1:length(NaN_negative_which)
+    k = NaN_negative_which(i);
+    MY_DATA(k).slope = 0;
+end
+Green_MY_DATA = MY_DATA;
+save('Green_MY_DATA_final_structure.mat', 'Green_MY_DATA')
+% save('Red_MY_DATA_final_structure.mat', 'MY_DATA')
+
+%% Get rid of poor fitting data
+% MY_DATA = Red_MY_DATA;
+cut_off_r2 = 0.8;
+slope = [];
+diffusioncoeff = [];
+intercept = [];
+r2 = [];
+x = 1;
+for i = 1:length(MY_DATA)
+        slope(i) = MY_DATA(i).slope;
+        r2(i) = MY_DATA(i).r2;
+        intercept(i) = MY_DATA(i).yinter;
+        if MY_DATA(i).r2>cut_off_r2
+            MY_DATA(i).r2point8 = 1;
+            x = x+1;
+        else 
+            MY_DATA(i).r2point8 = 0;
+        end
+end
+diffusioncoeff= slope/2;
+Dr2less08 = diffusioncoeff(r2<cut_off_r2);
+Dr2greater08 = diffusioncoeff(r2>cut_off_r2);
+
+save('Green_diffusioncoeff', 'diffusioncoeff');
+save('Green_Dr2less08', 'Dr2less08');
+save('Green_Dr2greater08','Dr2greater08');
+% 
+% save('Red_diffusioncoeff', 'diffusioncoeff');
+% save('Red_Dr2less08', 'Dr2less08');
+% save('Red_Dr2greater08','Dr2greater08');
+
+%% TEXT BOX FOR HISTOGRAMS
+histogram(Dr2greater08, 20)
+% hold on
+% histogram(redDr2greater08)
+% hold off
+% dim = [0.7 0.6 0.3 0.3];
+% str = ['SWR1 n= ', num2str(length(greenDr2greater08))];%, newline, 'dCas9 n= ', num2str(length(redDr2greater08))];
+% annotation('textbox',dim,'String',str,'FitBoxToText','on');
+
+
+
+
+%%
+counter = 1;
+mM70_salt_gammaS = [];
+for i = 1:length(gammaS)
+%     if gammaS(i).salt == 70
+        mM70_salt_gammaS(counter) = gammaS(i).slope/2;
+        counter = counter +1;
+%     end
+end
+
+%%
+binlims = [0 0.5];
+
+histogram(Dr2greater08, 30,'BinLimits', binlims,'FaceColor','#7E2F8E', 'Normalization', 'probability')
+hold on
+histogram(mM70_salt_ATP, 30,'BinLimits', binlims,'FaceColor','#0072BD', 'Normalization', 'probability')
+histogram(ATP_diffusion_all2020, 30, 'BinLimits', binlims,'FaceColor','none', 'Normalization', 'probability', 'LineWidth', 1.5)
+hold on
+% histogram(mM70_salt_gammaS, 30, 'BinLimits', binlims,'FaceColor','black','Normalization', 'probability')
+hold off
+
 %%
 % % Visualize NaNs to determine which to keep
 % 
@@ -367,80 +447,4 @@ clear a
 %         end
 %     end
 % end
-
-%% Finalize Data Structures 
-% what to make into 0, these aren't moving
-% negative_which_noNaN
-% and
-% NaN_negative_which
-
-for i = 1:length(negative_which_noNaN)
-    k = negative_which_noNaN(i);
-    MY_DATA(k).slope = 0;
-end
-for i = 1:length(NaN_negative_which)
-    k = NaN_negative_which(i);
-    MY_DATA(k).slope = 0;
-end
-
-save('GREEN_MY_DATA_final_structure.mat', 'MY_DATA')
-
-%% Get rid of poor fitting data
-cut_off_r2 = 0.8;
-slope = [];
-diffusioncoeff = [];
-intercept = [];
-r2 = [];
-x = 1;
-for i = 1:length(MY_DATA)
-        slope(i) = MY_DATA(i).slope;
-        r2(i) = MY_DATA(i).r2;
-        intercept(i) = MY_DATA(i).yinter;
-        if MY_DATA(i).r2>cut_off_r2
-            MY_DATA(i).r2point8 = 1;
-            x = x+1;
-        else 
-            MY_DATA(i).r2point8 = 0;
-        end
-end
-diffusioncoeff= slope/2;
-Dr2less08 = diffusioncoeff(r2<cut_off_r2);
-Dr2greater08 = diffusioncoeff(r2>cut_off_r2);
-
-save('Green_diffusioncoeff', 'diffusioncoeff');
-save('Green_Dr2less08', 'Dr2less08');
-save('Green_Dr2greater08','Dr2greater08');
-%% TEXT BOX FOR HISTOGRAMS
-histogram(Dr2greater08, 20)
-hold on
-histogram(diffusioncoeff)
-hold off
-dim = [0.7 0.6 0.3 0.3];
-str = ['SWR1 n= ', num2str(length(Dr2greater08)), newline, 'dCas9 n= ', num2str(length(diffusioncoeff))];
-annotation('textbox',dim,'String',str,'FitBoxToText','on');
-
-
-
-
-%%
-counter = 1;
-mM70_salt_gammaS = [];
-for i = 1:length(gammaS)
-%     if gammaS(i).salt == 70
-        mM70_salt_gammaS(counter) = gammaS(i).slope/2;
-        counter = counter +1;
-%     end
-end
-
-%%
-binlims = [0 0.5];
-
-histogram(Dr2greater08, 30,'BinLimits', binlims,'FaceColor','#7E2F8E', 'Normalization', 'probability')
-hold on
-histogram(mM70_salt_ATP, 30,'BinLimits', binlims,'FaceColor','#0072BD', 'Normalization', 'probability')
-histogram(ATP_diffusion_all2020, 30, 'BinLimits', binlims,'FaceColor','none', 'Normalization', 'probability', 'LineWidth', 1.5)
-hold on
-% histogram(mM70_salt_gammaS, 30, 'BinLimits', binlims,'FaceColor','black','Normalization', 'probability')
-hold off
-
 

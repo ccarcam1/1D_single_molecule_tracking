@@ -5,10 +5,12 @@
 for i = 1:length(Green_MY_DATA)
     Green_name_contents{i} = strsplit(Green_MY_DATA(i).name);
 end 
+
 for i = 1:length(Green_name_contents)
     Green_pull_these_kymos{i}{1} = [Green_name_contents{1,i}{1},' '];
     Green_kymonames{i} = [Green_name_contents{1,i}{1},' '];
-    Green_pull_these_kymos{i}{2} = [Green_name_contents{1,i}{2},' ',Green_name_contents{1,i}{3},' '];
+    temp = strsplit(Green_name_contents{1,i}{3}, '_');
+    Green_pull_these_kymos{i}{2} = [Green_name_contents{1,i}{2},' ',temp{1}];
 end
 Red_names = {Red_MY_DATA.name}.';
 for i = 1:length(Green_pull_these_kymos)
@@ -25,8 +27,9 @@ for i = 1:length(Green_MY_DATA)
         for k = 1:length(Green_pull_these_kymos)
             y= 1;
             for j = 1:length(Red_names)
-                if contains(Red_names{j}, Green_pull_these_kymos{k}{2})
+                if contains(Red_names{j}, Green_pull_these_kymos{k}{2}) && not(contains(Red_names{j}, Green_pull_these_kymos{k}{1}))
                     Green_MY_DATA(k).Red_Info_Loc(y) = j;
+                    Green_MY_DATA(k).not_original_red = 1;
                     y= y+1;
                 end
             end
@@ -148,7 +151,7 @@ for i = 1:11
 red_map(i,1) = i*0.1-0.1;
 end
 
-for lmnop = 2%:length(uniq_kymo_names)
+for lmnop = 1:length(uniq_kymo_names)
     if isempty(Green_MY_DATA(lmnop).Red_Info_Loc)
         continue
     end
@@ -156,8 +159,8 @@ for lmnop = 2%:length(uniq_kymo_names)
     i = ii(1);
     threshold_for_red_trace_in_subplot = 80;
     num_of_red_traces = length(Green_MY_DATA(i).Red_Info_Loc);
-%     fh1 = figure('visible','off');% select to suppress figures when saving
-    fh1 = figure;
+    fh1 = figure('visible','off');% select to suppress figures when saving
+%     fh1 = figure;
     sfh1 = subplot(1,2,1,'Parent',fh1);
     imagesc(flip(Red_MY_DATA(Green_MY_DATA(i).Red_Info_Loc(1)).kymograph(:,1:threshold_for_red_trace_in_subplot)))
     colormap(sfh1,red_map)
@@ -209,7 +212,20 @@ for j = 1:num_of_red_traces
     red_avg_position = mean(red_position(:,2));
     red_avg_pos_for_full_kymo = red_avg_position+red_chords(3)-1;
     length_green_trace = length(Green_MY_DATA(i).particle_tracked);
-    yline(red_avg_pos_for_full_kymo,'Color','r','LineWidth',2)
+%     yline(red_avg_pos_for_full_kymo,'Color','r','LineWidth',2)
+    if isempty(Green_MY_DATA(i).not_original_red)
+        x_is = [0:length_red_line];
+        red_avg_pos_for_full_kymo_plot = red_avg_pos_for_full_kymo.* ones(length(x_is),1);
+        plot(x_is, red_avg_pos_for_full_kymo_plot,'Color','r','LineWidth',2)
+
+        x_is = [length_red_line+1:length(Green_MY_DATA(i).kymograph)];
+        red_avg_pos_for_full_kymo_plot = red_avg_pos_for_full_kymo.* ones(length(x_is),1);
+        plot(x_is, red_avg_pos_for_full_kymo_plot,'Color','m','LineStyle', ':','LineWidth',2)
+    else
+        x_is = [0:length(Green_MY_DATA(i).kymograph)];
+        red_avg_pos_for_full_kymo_plot = red_avg_pos_for_full_kymo.* ones(length(x_is),1);
+        plot(x_is, red_avg_pos_for_full_kymo_plot,'Color','m','LineStyle', ':','LineWidth',2)
+    end
 end
     hold off
     
@@ -221,7 +237,7 @@ end
         plot(green_position(:,1)+green_chords(1)-1,green_position(:,2)+green_chords(3)-1,'Color','y','LineWidth',2)
     end
     hold off
-%     saveas(fh1,['two_color with SWR1 and Cas9 positions after second pass particle finding ',uniq_kymo_names{lmnop},'.png'],'png')
+    saveas(fh1,['two_color with positions after second pass magenta ',uniq_kymo_names{lmnop},'.png'],'png')
 
 end
 
